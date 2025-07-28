@@ -1,3 +1,4 @@
+.env
 .project/*
 !.project/spec.yaml
 !.project/brev.*
