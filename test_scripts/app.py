@@ -1,122 +1,128 @@
-import json
 import os
+import tempfile
 
+import numpy as np
+import sounddevice as sd
 import streamlit as st
+import whisper
 from dotenv import load_dotenv
 from openai import OpenAI
+from scipy.io.wavfile import write
 from utils.feedback import call_llm
 
-
-# Optional: define tools here or import from another module
-def detect_filler_words(speech: str):
-    filler_words = ["um", "uh", "like", "you know", "so", "actually", "basically"]
-    words = speech.lower().split()
-    found = [word for word in words if word in filler_words]
-    return {
-        "count": len(found),
-        "filler_words": list(set(found)),
-        "examples": found[:10],
-    }
-
-
-# Load API key and model info
+# Load environment variables
 load_dotenv()
 API_KEY = os.getenv("NVIDIA_API_KEY")
 MODEL_URL = "https://integrate.api.nvidia.com/v1"
 MODEL_NAME = "meta/llama-3.3-70b-instruct"
 client = OpenAI(base_url=MODEL_URL, api_key=API_KEY)
 
-# App layout
-st.set_page_config(page_title="Speech Feedback App", layout="wide")
-st.title("🗣️ Speech Feedback Assistant")
+# Load Whisper model once
+asr_model = whisper.load_model("base")
 
-st.markdown(
-    "This app provides **constructive feedback** on your speech using an AI agent that can reason, use tools, and respond iteratively."
-)
+# Streamlit config
+st.set_page_config(page_title="🎤 Speech Feedback App", layout="centered")
+st.title("🎙️ Speech Feedback via Audio")
 
-# --- Survey ---
+# Session state
+if "recording" not in st.session_state:
+    st.session_state.recording = False
+if "audio_file" not in st.session_state:
+    st.session_state.audio_file = None
+
+# Global audio buffer
+audio_buffer = []
+
+# Survey
 st.subheader("🧠 Speech Context")
-survey_answers = {}
-survey_questions = [
-    "What is the goal of the speech?",
-    "Who’s your audience?",
-]
-cols = st.columns(len(survey_questions))
-for i, q in enumerate(survey_questions):
-    survey_answers[q] = cols[i].text_input(q)
+goal = st.text_input("What is the goal of the speech?")
+audience = st.text_input("Who’s your audience?")
+fs = 16000  # 16 kHz sample rate
 
-# --- Speech Input ---
-st.subheader("📝 Speech Input")
-speech = st.text_area("Paste or write your speech below:")
 
-# --- Tool Definitions ---
-tools = [
-    {
-        "type": "function",
-        "function": {
-            "name": "detect_filler_words",
-            "description": "Detects filler words in a speech.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "speech": {
-                        "type": "string",
-                        "description": "The speech text to analyze.",
-                    }
-                },
-                "required": ["speech"],
-            },
-        },
-    }
-]
+def audio_callback(indata, frames, time, status):
+    if status:
+        print("Recording error:", status)
+    audio_buffer.append(indata.copy())
 
-# --- Button Action ---
-if st.button("🧠 Get Feedback"):
-    if not speech:
-        st.warning("Please provide a speech to analyze.")
-    else:
-        # --- Initial Memory ---
+
+# Start/Stop buttons
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("▶️ Start Recording") and not st.session_state.recording:
+        audio_buffer.clear()
+        st.session_state.recording = True
+        st.info("Recording started... press stop when you're done.")
+        try:
+            with sd.InputStream(callback=audio_callback, channels=1, samplerate=fs):
+                sd.sleep(5000)  # record for 5 seconds
+        except Exception as e:
+            st.error(f"Audio stream error: {e}")
+        st.session_state.recording = False
+
+        # Save audio file
+        if audio_buffer:
+            audio_data = np.concatenate(audio_buffer, axis=0)
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmpfile:
+                write(tmpfile.name, fs, audio_data)
+                st.session_state.audio_file = tmpfile.name
+                st.success("✅ Recording saved.")
+                st.audio(tmpfile.name)
+
+with col2:
+    st.button("⏹️ Stop Recording", disabled=True)  # Placeholder for symmetry
+
+# Process and transcribe
+if st.session_state.audio_file:
+    st.subheader("🧠 Feedback from Agent")
+    try:
+        st.info("Transcribing your speech...")
+        result = asr_model.transcribe(st.session_state.audio_file)
+        transcription = result["text"]
+        st.success("✅ Transcription complete!")
+        st.markdown(f"### 📝 Transcription:\n> {transcription}")
+
         memory = [
             {
                 "role": "user",
-                "content": f'Here is the context: {survey_answers}\n\nHere is the speech:\n"""{speech}"""\n\nPlease give detailed feedback on:\n- Filler words\n- Projection\n- Speed\n- Understandability\n\nBe specific and constructive.',
+                "content": f"""Speech context:
+Goal: {goal}
+Audience: {audience}
+
+Transcript:
+\"\"\"{transcription}\"\"\"
+
+Please give feedback on:
+- Filler words
+- Projection
+- Speed
+- Understandability
+""",
             }
         ]
 
-        # --- First LLM Call ---
+        tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "detect_filler_words",
+                    "description": "Detects filler words in a speech.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "speech": {
+                                "type": "string",
+                                "description": "The speech text or transcript.",
+                            }
+                        },
+                        "required": ["speech"],
+                    },
+                },
+            }
+        ]
+
         llm_response = call_llm(client, MODEL_NAME, memory, tools)
-        memory.append(llm_response)
+        st.write(llm_response.get("content", "No feedback returned."))
 
-        # --- Tool Handling ---
-        if "tool_calls" in llm_response:
-            for tool_call in llm_response["tool_calls"]:
-                tool_name = tool_call["function"]["name"]
-                tool_args = json.loads(tool_call["function"]["arguments"])
-                tool_id = tool_call["id"]
-
-                if tool_name == "detect_filler_words":
-                    tool_result = detect_filler_words(**tool_args)
-                else:
-                    tool_result = {"error": f"No tool registered for '{tool_name}'."}
-
-                memory.append(
-                    {
-                        "role": "tool",
-                        "tool_call_id": tool_id,
-                        "name": tool_name,
-                        "content": json.dumps(tool_result),
-                    }
-                )
-
-            # --- Second LLM Call (post-tool) ---
-            llm_response = call_llm(client, MODEL_NAME, memory, tools)
-            memory.append(llm_response)
-
-        # --- Display Feedback ---
-        st.subheader("📋 Feedback")
-        st.write(llm_response.get("content", "No feedback was returned."))
-
-        # --- Optional: Show raw memory log ---
-        with st.expander("🗂️ Full Agent Memory"):
-            for msg in memory:
-                st.markdown(f"**{msg['role'].capitalize()}**: {msg.get('content', '')}")
+    except Exception as e:
+        st.error(f"Model call failed: {e}")
