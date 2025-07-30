@@ -1,18 +1,10 @@
 # Speech Feedback
 
-I'd be happy to provide feedback on your speech! Here are my observations:
+Here's some feedback on your speech:
 
-* **Filler words**: I notice that you start with "hello" twice, which can be considered filler words. In a 1-minute speech, it's essential to make the most of your time, and using filler words can make you appear less confident. Consider starting with a hook that grabs your mom's attention, such as a funny anecdote or a thought-provoking question.
-* **Projection of voice**: Unfortunately, I don't have the audio recording to assess your voice projection directly. However, I can suggest that you practice speaking clearly and loudly enough for your mom to hear you comfortably. Make sure to stand up straight, relax your shoulders, and speak from your diaphragm to project your voice effectively.
-* **Speed**: Based on the transcript, it seems like you might be speaking a bit slowly, as the only words you've spoken are "hello" twice. Try to find a comfortable pace that allows you to convey your message clearly without rushing or dragging. Aim for a pace that's engaging and easy to follow.
-* **Understandability**: At this point, your speech isn't very understandable, as you haven't conveyed any meaningful message yet. To improve understandability, consider structuring your speech with a clear introduction, body, and conclusion. Use simple language, and try to make your points concise and relatable. Since your goal is to persuade your mom, make sure to provide compelling reasons and examples to support your argument.
+* **Filler words**: You started your speech with two "hellos" which can be seen as filler words. Try to begin with a stronger opening that grabs your mom's attention. Consider starting with a hook, a personal story, or a rhetorical question that sets the tone for the rest of your speech.
+* **Projection of voice**: Unfortunately, I couldn't assess the projection of your voice as the transcript doesn't provide audio data. However, when speaking to your mom, make sure to project your voice clearly and confidently, so she can hear you without straining. Speak from your diaphragm, and avoid mumbling or speaking too softly.
+* **Speed**: The transcript is quite short, but it seems like you might be speaking a bit slowly or hesitantly. Try to find a comfortable pace that allows you to convey your message without rushing or dragging. Aim for a conversational tone, and don't be afraid to pause for emphasis or to let your mom absorb what you're saying.
+* **Understandability**: Your speech is currently quite unclear, as you haven't actually said anything substantive yet! To improve understandability, make sure to clearly state your main point or goal, and provide some supporting evidence or examples to convince your mom. Use simple, concise language that she can easily follow, and try to avoid jargon or technical terms that might confuse her.
 
-To take your speech to the next level, here are some specific suggestions:
-
-1. Start with a hook that grabs your mom's attention.
-2. Practice speaking clearly and loudly, using a conversational tone.
-3. Focus on conveying a clear and concise message, avoiding filler words and jargon.
-4. Use humor to keep your speech engaging and entertaining, as you've chosen a funny tone.
-5. Record yourself speaking and listen to the recording to identify areas for improvement.
-
-Remember, the key to a great speech is to be confident, engaging, and authentic. Good luck with your speech, and I hope you persuade your mom!
+To take your speech to the next level, consider adding some humor, as you mentioned you want to aim for a funny tone. Think about what makes your mom laugh, and try to incorporate some lighthearted anecdotes or witty one-liners to keep her engaged and entertained. Good luck!
