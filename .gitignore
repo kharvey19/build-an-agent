@@ -3,7 +3,8 @@
 !.project/spec.yaml
 !.project/brev.*
 !.project/cache
-
+/temp_audio
+/app_v2
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

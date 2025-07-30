@@ -79,6 +79,10 @@ def main() -> None:
         enable_automatic_punctuation=args.automatic_punctuation,
         verbatim_transcripts=not args.no_verbatim_transcripts,
         enable_word_time_offsets=args.word_time_offsets or args.speaker_diarization,
+        # Add audio encoding parameters to fix "encoding not specified" error
+        sample_rate_hertz=16000,
+        audio_channel_count=1,
+        encoding=riva.client.AudioEncoding.LINEAR_PCM,
     )
     riva.client.add_word_boosting_to_config(
         config, args.boosted_lm_words, args.boosted_lm_score
