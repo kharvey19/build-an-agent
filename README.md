@@ -32,27 +32,14 @@ You speak into your mic, answer a few context questions, and get written feedbac
 ```
 pip install -r requirements.txt
 ```
-## 🚀 Running the App
-
-### Step 1: Record your speech
+## 🚀 Running the Streamlit app
 
 ```
-python record.py
+streamlit run app.py   
 ```
-### Step 2: Analyze and get feedback
+You will see everything on streamlit!
 
-```
-python fix_speech.py
-```
-
-### Step 3: View results
-- Your speech transcription and feedback will be printed
-- A Markdown file speech_feedback.md will be generated with detailed suggestions
-
-
-## ✨ Example Output
-
- Speech Feedback
+## ✨ Example Feedback Response
 
 I'd be happy to provide feedback on your speech! Here are my observations:
 
